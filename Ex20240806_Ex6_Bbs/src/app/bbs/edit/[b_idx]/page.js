@@ -1,17 +1,21 @@
 "use client"
 
-import { Button, Card, CardContent, Divider } from '@mui/material'
+import React, { useEffect, useState } from 'react'
+import { Button, Card, CardContent, Divider, FormControl, OutlinedInput } from '@mui/material'
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
 
-import React, { useEffect, useState } from 'react'
 
 export default function page(props) {
 
     const b_idx = props.params.b_idx;
     const nowPage = props.searchParams.nowPage;
+    
 
     const [bvo, setBvo] = useState({});
+    const [prevCont, setPrevContent] = useState(null);
+    const [content, setContent] = useState(null);
+    const [file, setFile] = useState(null);
 
     function getData(){
         axios.get(
@@ -19,19 +23,41 @@ export default function page(props) {
             {params:{"b_idx":b_idx}}
         ).then((res)=>{
             setBvo(res.data.bvo);
+            setPrevContent(res.data.bvo.content);
         });
     }
 
     function sendData(){
-        let frm = document.forms[0];
-        let content = frm.content.value.trim();
-        if(content == null || content.length == 0){
-            alert("내용은 빈칸일 수 없습니다.");
-            frm.content.value="";
-            frm.content.focus();
+        
+        const frm = new FormData();
+
+        let chk = true;
+        frm.append("b_idx",b_idx);
+        if(content != null && content != prevCont){
+            frm.append("content", content);
+            chk = false;
+        }
+        if(file != null){
+            frm.append("file", file);
+            chk = false;
+        }
+        if(chk){
+            alert("수정된 사항이 없습니다.");
             return;
         }
-
+        axios.post(
+            "/api/bbs/edit",
+            frm,
+            {headers:{'Content-Type':'multipart/form-data'}}
+          ).then((res)=>{
+            console.log(res);
+            if(res.data.result == 1){
+              alert("수정 완료!");
+                router.push(`/bbs/detail/${b_idx}`);
+            }
+          });
+        
+        
     }
 
     useEffect(()=>{
@@ -43,19 +69,32 @@ export default function page(props) {
     const router = useRouter();
 
     return (
-        <Card sx ={{maxWidth: 500, padding:'20px', margin: '20px auto'}}>
-            <CardContent>
-                <h1>글 수정</h1>
-                <Divider sx={{margin: '15px auto'}}/>
-                <form action='/api/post/edit' method='post'>
-                    <input type='hidden' name='b_idx' value={b_idx}/><br/>
-                    제목: <input type='text' style={{padding: 5, width: 150, margin: '5px 0', border: 'none'}} name='subject' readOnly defaultValue={bvo.subject}/><br/>
-                    내용: <input type='text' style={{padding: 5, width: 150, margin: '5px 0'}} name='content' defaultValue={bvo.content}/><br/>
-                    작성자: <input type='text' style={{padding: 5, width: 150, margin: '5px 0', border: 'none'}} name='writer' readOnly defaultValue={bvo.writer}/><br/>
-                    <Button type='button' onClick={sendData} variant="contained">수정</Button>
-                    <Button onClick={()=>router.push(`/bbs/detail/${b_idx}?nowPage=${nowPage}`)} style={{margin:'0 0 0 10px'}} variant="contained" color='error'>취소</Button>
-                </form>
-            </CardContent>
-        </Card>
+        <div style={{width:'70%', margin:'10px auto'}}>
+            <Card style={{width:'700px', margin:'20px auto'}}>
+                <CardContent>
+                    <header>
+                        <h2>게시글 수정</h2>
+                    </header>
+                    <div style={{marginTop:'20px'}}>
+                      <FormControl style={{width:'80%'}}>
+                        <input type='hidden' name='b_idx' value={b_idx}/><br/>
+                        <p>제목: <strong style={{fontSize:'20px'}}>{bvo.subject}</strong></p>
+                        <Divider/>
+                        <p>작성자: <strong style={{fontSize:'20px'}}>{bvo.writer}</strong></p>
+                        <Divider/>
+                        내용: <OutlinedInput id='content' name='content' onChange={(e)=>{setContent(e.target.value)}} defaultValue={bvo.content}/>
+                        <Divider/>
+                        <input style={{margin:'10px 0'}} type='file' name='file' id='file' defaultValue={bvo.file} onChange={(e)=>{setFile(e.target.files[0])}/*uploadFile*/} />
+                        {bvo.file_name != null ? <p>현재 {bvo.file_name} 첨부 중</p> : null}
+                        <Divider style={{marginBottom:'10px'}}/>
+                      </FormControl>
+                      <div>
+                        <Button type='button' onClick={sendData} variant="contained">수정</Button>
+                        <Button onClick={()=>router.push(`/bbs/detail/${b_idx}?nowPage=${nowPage}`)} style={{margin:'0 0 0 10px'}} variant="contained" color='error'>취소</Button>
+                      </div>
+                    </div>
+                </CardContent>
+            </Card>
+        </div>
     )
 }

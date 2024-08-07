@@ -16,8 +16,10 @@ public interface BbsMapper {
 
     int add(BbsVO bvo);
 
+    int addFile(BbsVO bvo);
+
     int hit(String b_idx);
     
-    int edit(String content, String b_idx);
+    int edit(BbsVO bvo);
 
 }

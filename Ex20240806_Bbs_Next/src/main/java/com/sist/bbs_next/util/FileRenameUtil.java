@@ -30,7 +30,7 @@ public class FileRenameUtil {
 			fileName = sb.toString();
 			
 			saveFilePath = path+System.getProperty("file.separator")+fileName;
-			System.out.println("saveFilePath: "+saveFilePath);
+			
 			f = new File(saveFilePath);
 		}
 		

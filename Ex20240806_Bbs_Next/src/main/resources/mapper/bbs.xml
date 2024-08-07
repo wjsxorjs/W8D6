@@ -59,9 +59,11 @@
     </select>
 
     <!-- 게시글 수정 -->
-    <update id="edit" parameterType="Map">
+    <update id="edit" parameterType="com.sist.bbs_next.vo.BbsVO">
         UPDATE `bbs_t`
-        SET content = #{content}
+        SET <if test="content != null">content = #{content}</if>
+            <if test="content != null and file_name != null">,</if>
+            <if test="file_name != null">file_name = #{file_name}, ori_name= #{ori_name}</if>
         WHERE b_idx = #{b_idx}
     </update>
 
@@ -84,6 +86,11 @@
         INTO `bbs_t`(subject, writer, content, file_name, ori_name, write_date, ip,  hit , bname, status)
         VALUES(#{subject},#{writer},#{content},#{file_name},#{ori_name},NOW(),#{ip},0,#{bname},0)
     </insert>
-
+    
+    <update id="addFile" parameterType="com.sist.bbs_next.vo.BbsVO">
+        UPDATE `bbs_t`
+        SET file_name = #{file_name}, ori_name = #{ori_name}
+        WHERE b_idx = #{b_idx}
+    </update>
 
 </mapper>

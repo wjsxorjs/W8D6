@@ -143,7 +143,6 @@ public class BbsController {
     @ResponseBody
     public Map<String, Object> add(BbsVO bvo) {
         Map<String, Object> w_map = new HashMap<>();
-        System.out.println("!!!!!!!!!!!!!!!!!!!!!!! bvo.getSubject(): "+bvo.getSubject());
         
         
         bvo.setIp(request.getRemoteAddr());
@@ -152,10 +151,104 @@ public class BbsController {
         // DB에 저장
         int result = b_service.add(bvo);
 
-        // System.out.println("!!!!!!!!!!!!!!!!!!!!!!! bvo.getB_idx(): "+bvo.getB_idx());
 
         w_map.put("result", result);
         w_map.put("bvo", bvo);
+
+        return w_map;
+    }
+
+    @RequestMapping("addFile")
+    @ResponseBody
+    public Map<String, Object> addFile(BbsVO bvo) {
+        Map<String, Object> w_map = new HashMap<>();
+
+        MultipartFile file = bvo.getFile();
+
+        // 파일이 첨부되지 않았다고 해도 file은 null이 아니다.
+        // 그러므로 null과 비교하는 것이 아닌 용량으로 확인해야한다.
+        if(file.getSize()>0){
+            String realPath = application.getRealPath(upload_path);
+
+            File ff = new File(realPath);
+            if(!ff.exists()){
+                ff.mkdirs();
+            }
+
+            String oname = file.getOriginalFilename();
+            bvo.setOri_name(oname);
+
+
+            String fname = FileRenameUtil.checkSameFileName(oname, realPath);
+            
+
+            try {
+                file.transferTo(new File(realPath, fname));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            
+            // 여기까지 서버에 업로드를 수행한 것이다.
+            // 이제 DB에 저장하는 일을 하자.
+            bvo.setFile_name(fname);
+
+        }
+        
+        bvo.setIp(request.getRemoteAddr());
+
+        // 필요한 내용 추가 완료 후
+        // DB에 저장
+        int result = b_service.addFile(bvo);
+
+        w_map.put("result", result);
+
+        return w_map;
+    }
+    
+    @RequestMapping("edit")
+    @ResponseBody
+    public Map<String, Object> edit(BbsVO bvo) {
+
+        Map<String, Object> w_map = new HashMap<>();
+
+        MultipartFile file = bvo.getFile();
+
+        // 파일이 첨부되지 않았다고 해도 file은 null이 아니다.
+        // 그러므로 null과 비교하는 것이 아닌 용량으로 확인해야한다.
+        if(file != null && file.getSize()>0){
+            String realPath = application.getRealPath(upload_path);
+
+            File ff = new File(realPath);
+            if(!ff.exists()){
+                ff.mkdirs();
+            }
+
+            String oname = file.getOriginalFilename();
+            bvo.setOri_name(oname);
+
+
+            String fname = FileRenameUtil.checkSameFileName(oname, realPath);
+            
+
+            try {
+                file.transferTo(new File(realPath, fname));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            
+            // 여기까지 서버에 업로드를 수행한 것이다.
+            // 이제 DB에 저장하는 일을 하자.
+            bvo.setFile_name(fname);
+
+        }
+        
+        bvo.setIp(request.getRemoteAddr());
+
+        // 필요한 내용 추가 완료 후
+        // DB에 저장
+        int result = b_service.edit(bvo);
+
+        w_map.put("result", result);
 
         return w_map;
     }

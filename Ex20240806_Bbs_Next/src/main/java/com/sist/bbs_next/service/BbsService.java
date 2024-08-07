@@ -39,6 +39,14 @@ public class BbsService {
         return b_mapper.add(bvo);
     }
 
+    public int addFile(BbsVO bvo){
+        return b_mapper.addFile(bvo);
+    }
+
+    public int edit(BbsVO bvo){
+        return b_mapper.edit(bvo);
+    }
+
     public int hit(String b_idx){
         return b_mapper.hit(b_idx);
     }
