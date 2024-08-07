@@ -73,7 +73,13 @@
     </update>
 
     <!-- 게시글 저장 -->
-    <insert id="add" parameterType="com.sist.bbs_next.vo.BbsVO">
+    <!-- <insert id="add" parameterType="com.sist.bbs_next.vo.BbsVO">
+        INSERT
+        INTO `bbs_t`(subject, writer, content, file_name, ori_name, write_date, ip,  hit , bname, status)
+        VALUES(#{subject},#{writer},#{content},#{file_name},#{ori_name},NOW(),#{ip},0,#{bname},0)
+    </insert> -->
+
+    <insert id="add" parameterType="com.sist.bbs_next.vo.BbsVO" useGeneratedKeys="true" keyProperty="b_idx">
         INSERT
         INTO `bbs_t`(subject, writer, content, file_name, ori_name, write_date, ip,  hit , bname, status)
         VALUES(#{subject},#{writer},#{content},#{file_name},#{ori_name},NOW(),#{ip},0,#{bname},0)

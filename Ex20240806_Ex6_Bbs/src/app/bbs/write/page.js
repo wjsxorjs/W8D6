@@ -12,37 +12,55 @@ export default function page() {
   const [content, setContent] = useState('');
   const [file, setFile] = useState(null);
 
-  // const UPLOAD_URL = "/public/upload/"
 
-  function uploadFile(e){
-    let file = e.target.files[0];
-    setFile(file);
-  }
+  // function uploadFile(e){
+  //   let file = e.target.files[0];
+  //   setFile(file);
+  // }
 
   const API_URL = "/api/bbs/write"
+  const API_URL_ADD = "/api/bbs/add"
 
   const sendData = (e) => {
-    // console.log(e.target.parentElement.previousSibling.children[0].children[0].value);
-    // console.log(e.target.parentElement.previousSibling.children[2].children[0].value);
-    // console.log(e.target.parentElement.previousSibling.children[4].children[0].value);
+    console.log("subject: " + e.target.parentElement.previousSibling.children[0].children[0].value);
+    console.log("writer: " + e.target.parentElement.previousSibling.children[2].children[0].value);
+    console.log("content: " + e.target.parentElement.previousSibling.children[4].children[0].value);
+    console.log("file: " + e.target.parentElement.previousSibling.children[6].files[0]);
  
-    axios.post(
-      API_URL,
-      {
-        "subject": subject,
-        "writer": writer,
-        "content": content,
-        "file": file,
-        "bname": "bbs"
-      },
-      {headers:{'Content-Type':'multipart/form-data'}}
-    ).then((res)=>{
-      console.log(res);
-      if(res.data.result == 1){
-        alert("저장 완료!");
-        router.push("/bbs");
+    // axios.post(
+    //   API_URL,
+    //   {
+    //     "subject": subject,
+    //     "writer": writer,
+    //     "content": content,
+    //     "file": file,
+    //     "bname": "bbs"
+    //   },
+    //   {headers:{'Content-Type':'multipart/form-data'}}
+    // ).then((res)=>{
+    //   console.log(res);
+    //   if(res.data.result == 1){
+    //     alert("저장 완료!");
+    //     router.push("/bbs");
+    //   }
+    // });
+
+    axios({
+      url:API_URL_ADD,
+      method:"post",
+      params:{
+          "subject": subject,
+          "writer": writer,
+          "content": content,
+          "bname": "bbs"
       }
-    });
+    }).then((res)=>{
+      if(res.data.result == 1){
+        console.log(res.data.bvo.b_idx);
+      } else{
+        console.log(res);
+      }
+    })
 
   };
 
@@ -61,7 +79,7 @@ export default function page() {
                     <Divider/>
                     <OutlinedInput id='content' onChange={(e)=>{setContent(e.target.value)}} name='content' placeholder='내용'/>
                     <Divider/>
-                    <input style={{margin:'10px 0'}} type='file' name='file' id='file' onChange={/*(e)=>{setFile(e.target.value)}*/uploadFile} />
+                    <input style={{margin:'10px 0'}} type='file' name='file' id='file' onChange={(e)=>{setFile(e.target.files[0])}/*uploadFile*/} />
                     <Divider style={{marginBottom:'10px'}}/>
                   </FormControl>
                   <div>

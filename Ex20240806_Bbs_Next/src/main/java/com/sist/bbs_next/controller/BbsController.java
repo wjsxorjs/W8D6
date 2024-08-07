@@ -138,4 +138,26 @@ public class BbsController {
         return w_map;
     }
 
+    
+    @RequestMapping("add")
+    @ResponseBody
+    public Map<String, Object> add(BbsVO bvo) {
+        Map<String, Object> w_map = new HashMap<>();
+        System.out.println("!!!!!!!!!!!!!!!!!!!!!!! bvo.getSubject(): "+bvo.getSubject());
+        
+        
+        bvo.setIp(request.getRemoteAddr());
+
+        // 필요한 내용 추가 완료 후
+        // DB에 저장
+        int result = b_service.add(bvo);
+
+        // System.out.println("!!!!!!!!!!!!!!!!!!!!!!! bvo.getB_idx(): "+bvo.getB_idx());
+
+        w_map.put("result", result);
+        w_map.put("bvo", bvo);
+
+        return w_map;
+    }
+
 }
